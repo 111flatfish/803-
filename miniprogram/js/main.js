@@ -4,7 +4,11 @@ import BackGround from './runtime/background'
 import GameInfo   from './runtime/gameinfo'
 import Music      from './runtime/music'
 import DataBus    from './databus'
-
+const BG_IMG_SRC = './images/bg.jpg'
+const BG_WIDTH = 512
+const BG_HEIGHT = 750
+let bac = new Image();
+bac.src = BG_IMG_SRC;
 let ctx   = canvas.getContext('2d')
 let databus = new DataBus()
 
@@ -24,10 +28,26 @@ export default class Main {
   constructor() {
     // 维护当前requestAnimationFrame的id
     this.aniId    = 0
-    this.personalHighScore = null
+    this.personalHighScore = null;
+    this.hasStart = false;
+    this.gameMode = true;
+    // ctx.fillStyle = '#1aad19' // 矩形颜色
+    // ctx.fillRect(0, 0, 100, 100) // 矩形左上角顶点为(0, 0)，右下角顶点为(100, 100)
+    this.gamestartinfo = new GameInfo();
+    this.gamestartinfo.renderGameStart(ctx);
+    // const image = wx.createImage()
+    // image.src = 'images/bg.jpg'
+    // image.onload = function () {
+    //   ctx.drawImage(image, 0, 0)
+    // }
+      if(!this.hasStart){
+        this.hasStart = true;
+        this.startHandler = this.startTouchEventHandler.bind(this)
+        canvas.addEventListener('touchstart', this.startHandler)
+      }
+     
 
-    this.restart()
-    this.login()
+    // this.login()
   }
 
   login() {
@@ -62,13 +82,14 @@ export default class Main {
       })
   }
 
-  restart() {
+  restart(gamemode) {
     databus.reset()
 
     canvas.removeEventListener(
       'touchstart',
-      this.touchHandler
-    )
+      this.startHandler
+    );
+    canvas.removeEventListener('touchover',this.touchHandler);
 
     this.bg       = new BackGround(ctx)
     this.player   = new Player(ctx)
@@ -84,7 +105,7 @@ export default class Main {
     this.aniId = window.requestAnimationFrame(
       this.bindLoop,
       canvas
-    )
+    );
   }
 
   /**
@@ -170,7 +191,43 @@ export default class Main {
         && y <= area.endY  )
       this.restart()
   }
-
+  //开始菜单按钮+模式
+  startTouchEventHandler(e){
+      e.preventDefault();
+      let x = e.touches[0].clientX;
+      let y = e.touches[0].clientY;
+      // 开始按钮
+    let area = this.gamestartinfo.btnStartArea;
+    // 模式按钮
+    let area2 =this.gamestartinfo.btnModeArea1;
+    let area3 = this.gamestartinfo.btnModeArea2;
+    if (x >= area2.startX
+      && x <= area2.endX
+      && y >= area2.startY
+      && y <= area2.endY) {
+      console.log("简单");
+      // this.restart();
+      this.gameMode = true;
+    }
+    else if (x >= area3.startX
+      && x <= area3.endX
+      && y >= area3.startY
+      && y <= area3.endY) {
+      console.log("困难");
+      this.gameMode = false;
+      // this.restart();
+    }
+    else if (x >= area.startX
+      && x <= area.endX
+      && y >= area.startY
+      && y <= area.endY){
+        console.log("开始");
+        this.restart(this.gameMode);
+      }
+      // this.restart()}
+    // this.removeEventListener("touchstart",this.startHandler);
+  }
+ 
   /**
    * canvas重绘函数
    * 每一帧重新绘制所有的需要展示的元素
@@ -207,7 +264,7 @@ export default class Main {
       if ( !this.hasEventBind ) {
         this.hasEventBind = true
         this.touchHandler = this.touchEventHandler.bind(this)
-        canvas.addEventListener('touchstart', this.touchHandler)
+        canvas.addEventListener('touchover', this.touchHandler)
       }
     }
   }
@@ -217,22 +274,24 @@ export default class Main {
     if ( databus.gameOver )
       return;
 
-    this.bg.update()
+    // this.bg.update()
 
-    databus.bullets
-           .concat(databus.enemys)
-           .forEach((item) => {
-              item.update()
-            })
+    // databus.bullets
+    //        .concat(databus.enemys)
+    //        .forEach((item) => {
+    //           item.update()
+    //         })
 
-    this.enemyGenerate()
+    // 敌机出现
+    // this.enemyGenerate()
 
     this.collisionDetection()
 
-    if ( databus.frame % 20 === 0 ) {
-      this.player.shoot()
-      this.music.playShoot()
-    }
+    // 子弹出现
+    // if ( databus.frame % 20 === 0 ) {
+    //   this.player.shoot()
+    //   this.music.playShoot()
+    // }
   }
 
   // 实现游戏帧循环

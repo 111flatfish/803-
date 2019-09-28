@@ -23,7 +23,8 @@ export default class DataBus {
     this.bullets    = []
     this.enemys     = []
     this.animations = []
-    this.gameOver   = false
+    this.gameOver   = false;
+    this.gameStart = false;
   }
 
   /**

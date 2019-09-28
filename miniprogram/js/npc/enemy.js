@@ -46,7 +46,7 @@ export default class Enemy extends Animation {
     this.initFrames(frames)
   }
 
-  // 每一帧更新敌机位置
+  // 每一帧更新位置
   update() {
     this.y += this[__.speed]
 
