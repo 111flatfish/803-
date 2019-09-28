@@ -7,6 +7,7 @@ let bg = wx.createImage();
 atlas.src = 'images/Common.png'
 bg.src = "images/bg.jpg"
 export default class GameInfo {
+
   renderGameScore(ctx, score) {
     ctx.fillStyle = "#ffffff"
     ctx.font      = "20px Arial"
@@ -17,6 +18,7 @@ export default class GameInfo {
       30
     )
   }
+
 //结束游戏
   renderGameOver(ctx, score, personalHighScore) {
     ctx.drawImage(atlas, 0, 0, 119, 108, screenWidth / 2 - 150, screenHeight / 2 - 100, 300, 300)
@@ -153,5 +155,8 @@ export default class GameInfo {
       endY: screenHeight / 2 - 100 + 255
     }
   }
+  // 界面
+  
+
 }
 

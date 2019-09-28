@@ -14,6 +14,12 @@ const BG_HEIGHT    = 750
 export default class BackGround extends Sprite {
   constructor(ctx) {
     super(BG_IMG_SRC, BG_WIDTH, BG_HEIGHT)
+    this.river = new Image();
+    this.rubbish = new Image();
+    this.bin = new Image();
+    this.river.src = "images/river.jpg";
+    this.rubbish.src = "images/rubbish.png";
+    this.bin.src = "images/bin.jpg";
     this.top = 0
     this.render(ctx)
   }
@@ -39,6 +45,37 @@ export default class BackGround extends Sprite {
         this.width,
         this.height
       );
+      ctx.drawImage(
+        this.river,
+        50,
+        0,
+        50,
+        50
+      );
+
+    ctx.fillStyle="#FF0000";
+    ctx.beginPath();
+    for(let i = 0 ;i < 3;i++){
+      ctx.arc(70,22,15,0,Math.PI*2,true);
+    }
+
+
+    ctx.closePath();
+    ctx.fill();
+    ctx.drawImage(
+      this.rubbish,
+      180,
+      0,
+      50,
+      50
+    );
+    ctx.drawImage(
+      this.bin,
+      300,
+      0,
+      50,
+      50
+    );
     // ctx.drawImage(
     //   this.img,
     //   0,
