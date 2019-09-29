@@ -22,6 +22,7 @@ export default class DataBus {
     this.score      = 0
     this.bullets    = []
     this.enemys     = []
+    this.booloons   = []
     this.animations = []
     this.gameOver   = false;
     this.gameStart = false;
@@ -49,5 +50,11 @@ export default class DataBus {
     temp.visible = false
 
     this.pool.recover('bullet', bullet)
+  }
+
+  removeBooloon(booloon){
+    let temp = this.booloons.shift();
+    temp.visible = false;
+    this.pool.recover("booloon",booloon);
   }
 }

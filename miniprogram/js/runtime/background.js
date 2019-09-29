@@ -17,6 +17,8 @@ export default class BackGround extends Sprite {
     this.river = new Image();
     this.rubbish = new Image();
     this.bin = new Image();
+    this.stab = new Image();
+    this.stab.src = "images/stab.png"
     this.river.src = "images/river.jpg";
     this.rubbish.src = "images/rubbish.png";
     this.bin.src = "images/bin.jpg";
@@ -52,14 +54,33 @@ export default class BackGround extends Sprite {
         50,
         50
       );
+    for(let i = 0; i < 11; i++){
+      ctx.drawImage(
+        this.stab,
+          (i*40)  ,
+          120,
+          40,
+          20
 
+      );
+    }
+    ctx.fillStyle = '#FFF';
+    ctx.setLineDash([10,10]);
+    ctx.beginPath();
+    ctx.moveTo(0,140);
+    ctx.lineTo(450,140);
+    ctx.moveTo(0,190);
+    ctx.lineTo(450,190);
+    ctx.stroke();
+    ctx.setLineDash([]);
     ctx.fillStyle="#FF0000";
     ctx.beginPath();
-    for(let i = 0 ;i < 3;i++){
-      ctx.arc(70,22,15,0,Math.PI*2,true);
+    for(let i = 0 ;i < 4;i++){
+      ctx.arc((110+i*20),22,8,0,Math.PI*2,true);
     }
-
-
+    for(let i = 0 ;i < 4;i++){
+      ctx.arc((250+i*20),22,8,0,Math.PI*2,true);
+    }
     ctx.closePath();
     ctx.fill();
     ctx.drawImage(
@@ -71,11 +92,21 @@ export default class BackGround extends Sprite {
     );
     ctx.drawImage(
       this.bin,
-      300,
+      320,
       0,
       50,
       50
     );
+    ctx.fillStyle = "#ccc"
+    ctx.fillRect(0,screenHeight-50,512,50)
+    ctx.fillStyle = "#ef4238";
+    ctx.beginPath();
+    ctx.arc(screenWidth/2,screenHeight-52,30,0,Math.PI*2,true);
+    ctx.closePath();
+    ctx.fill();
+
+
+
     // ctx.drawImage(
     //   this.img,
     //   0,

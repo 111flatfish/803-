@@ -23,11 +23,11 @@ export default class Sprite {
       return
 
     ctx.drawImage(
-      this.img,
-      this.x,
-      this.y,
-      this.width,
-      this.height
+        this.img,
+        this.x,
+        this.y,
+        this.width,
+        this.height
     )
   }
 

@@ -1,9 +1,11 @@
 import Player     from './player/index'
 import Enemy      from './npc/enemy'
+import Booloon    from "./npc/booloon"
 import BackGround from './runtime/background'
 import GameInfo   from './runtime/gameinfo'
 import Music      from './runtime/music'
 import DataBus    from './databus'
+import Problems from  "./npc/problems"
 const BG_IMG_SRC = './images/bg.jpg'
 const BG_WIDTH = 512
 const BG_HEIGHT = 750
@@ -31,10 +33,9 @@ export default class Main {
     this.personalHighScore = null;
     this.hasStart = false;
     this.gameMode = true;
-    // ctx.fillStyle = '#1aad19' // 矩形颜色
-    // ctx.fillRect(0, 0, 100, 100) // 矩形左上角顶点为(0, 0)，右下角顶点为(100, 100)
     this.gamestartinfo = new GameInfo();
     this.gamestartinfo.renderGameStart(ctx);
+    this.problem = this.problemsGenerate();
     // const image = wx.createImage()
     // image.src = 'images/bg.jpg'
     // image.onload = function () {
@@ -95,7 +96,6 @@ export default class Main {
     this.player   = new Player(ctx)
     this.gameinfo = new GameInfo()
     this.music    = new Music()
-
     this.bindLoop     = this.loop.bind(this)
     this.hasEventBind = false
 
@@ -119,11 +119,20 @@ export default class Main {
       databus.enemys.push(enemy)
     }
   }
-
+  problemsGenerate(){
+      let problem = new Problems(ctx);
+      return problem;
+  }
+  booloonGenerate(){
+    if(databus.frame % 30 === 0){
+    let booloon = databus.pool.getItemByClass("booloon",Booloon);
+    booloon.init(2);
+    databus.booloons.push(booloon);
+    }
+  }
   // 全局碰撞检测
   collisionDetection() {
     let that = this
-
     databus.bullets.forEach((bullet) => {
       for ( let i = 0, il = databus.enemys.length; i < il;i++ ) {
         let enemy = databus.enemys[i]
@@ -144,6 +153,41 @@ export default class Main {
       let enemy = databus.enemys[i]
 
       if ( this.player.isCollideWith(enemy) ) {
+        databus.gameOver = true
+
+        // 获取历史高分
+        if (this.personalHighScore) {
+          if (databus.score > this.personalHighScore) {
+            this.personalHighScore = databus.score
+          }
+        }
+
+        // 上传结果
+        // 调用 uploadScore 云函数
+        wx.cloud.callFunction({
+          name: 'uploadScore',
+          // data 字段的值为传入云函数的第一个参数 event
+          data: {
+            score: databus.score
+          },
+          success: res => {
+            if (this.prefetchHighScoreFailed) {
+              this.prefetchHighScore()
+            }
+          },
+          fail: err => {
+            console.error('upload score failed', err)
+          }
+        })
+
+        break
+      }
+    }
+    // 检测气球与针的碰撞
+    for ( let i = 0, il = databus.booloons.length; i < il;i++ ) {
+      let booloon = databus.booloons[i]
+
+      if ( this.player.isCollideWith(booloon) ) {
         databus.gameOver = true
 
         // 获取历史高分
@@ -223,6 +267,7 @@ export default class Main {
       && y <= area.endY){
         console.log("开始");
         this.restart(this.gameMode);
+
       }
       // this.restart()}
     // this.removeEventListener("touchstart",this.startHandler);
@@ -237,13 +282,15 @@ export default class Main {
 
     this.bg.render(ctx)
 
-    databus.bullets
-          .concat(databus.enemys)
+    databus.booloons
           .forEach((item) => {
-              item.drawToCanvas(ctx)
+              item.drawToCanvas(ctx);
+              item.drawAnswer(ctx)
             })
 
-    this.player.drawToCanvas(ctx)
+    this.player.drawToCanvas(ctx);
+
+    this.problem.drawToCanvas(ctx);
 
     databus.animations.forEach((ani) => {
       if ( ani.isPlaying ) {
@@ -281,12 +328,14 @@ export default class Main {
     //        .forEach((item) => {
     //           item.update()
     //         })
-
+        databus.booloons.forEach((item)=>{
+          item.update(ctx);
+        })
     // 敌机出现
     // this.enemyGenerate()
-
+    this.booloonGenerate();
     this.collisionDetection()
-
+    this.problem.update(ctx,"问题");
     // 子弹出现
     // if ( databus.frame % 20 === 0 ) {
     //   this.player.shoot()
