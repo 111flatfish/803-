@@ -26,6 +26,7 @@ export default class DataBus {
     this.animations = []
     this.gameOver   = false;
     this.gameStart = false;
+    this.gameFinish = false;
   }
 
   /**

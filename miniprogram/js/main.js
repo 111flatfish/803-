@@ -1,6 +1,7 @@
 import Player     from './player/index'
 import Enemy      from './npc/enemy'
 import Booloon    from "./npc/booloon"
+import Answer     from "./npc/answer"
 import BackGround from './runtime/background'
 import GameInfo   from './runtime/gameinfo'
 import Music      from './runtime/music'
@@ -32,10 +33,12 @@ export default class Main {
     this.aniId    = 0
     this.personalHighScore = null;
     this.hasStart = false;
-    this.gameMode = true;
     this.gamestartinfo = new GameInfo();
     this.gamestartinfo.renderGameStart(ctx);
     this.problem = this.problemsGenerate();
+    this.currentproblem = this.problem.currentproblem.num;
+    this.answer = new Answer();
+    this.gameMode = true;
     // const image = wx.createImage()
     // image.src = 'images/bg.jpg'
     // image.onload = function () {
@@ -84,20 +87,21 @@ export default class Main {
   }
 
   restart(gamemode) {
-    databus.reset()
-
+    databus.reset();
+    this.answer = new Answer();
     canvas.removeEventListener(
       'touchstart',
       this.startHandler
     );
-    canvas.removeEventListener('touchover',this.touchHandler);
-
+    canvas.removeEventListener('touchstart',this.touchHandler);
+    canvas.removeEventListener("touchstart",this.endHandler);
     this.bg       = new BackGround(ctx)
     this.player   = new Player(ctx)
     this.gameinfo = new GameInfo()
     this.music    = new Music()
     this.bindLoop     = this.loop.bind(this)
-    this.hasEventBind = false
+    this.hasEventBind = false;
+    this.hasEndBind = false;
 
     // 清除上一局的动画
     window.cancelAnimationFrame(this.aniId);
@@ -113,7 +117,7 @@ export default class Main {
    * 帧数取模定义成生成的频率
    */
   enemyGenerate() {
-    if ( databus.frame % 30 === 0 ) {
+    if ( databus.frame % 50 === 0 ) {
       let enemy = databus.pool.getItemByClass('enemy', Enemy)
       enemy.init(6)
       databus.enemys.push(enemy)
@@ -124,10 +128,22 @@ export default class Main {
       return problem;
   }
   booloonGenerate(){
-    if(databus.frame % 30 === 0){
-    let booloon = databus.pool.getItemByClass("booloon",Booloon);
-    booloon.init(2);
-    databus.booloons.push(booloon);
+    if(databus.frame % 50 === 0){
+      let ran = Math.floor(Math.random()*(20));
+      let text = "答案";
+      while(this.answer.answer[ran].lock != false){
+        ran = Math.floor(Math.random()*(20));
+      }
+      text = this.answer.answer[ran].text;
+      this.answer.answer[ran].lock = true;
+      // console.log(this.answer.answer[ran]);
+      let booloon = databus.pool.getItemByClass("booloon",Booloon);
+      if(this.gameMode == true){
+        booloon.init(2,text,ran);
+      }else {
+        booloon.init(5, text, ran);
+      }
+      databus.booloons.push(booloon);
     }
   }
   // 全局碰撞检测
@@ -156,29 +172,29 @@ export default class Main {
         databus.gameOver = true
 
         // 获取历史高分
-        if (this.personalHighScore) {
-          if (databus.score > this.personalHighScore) {
-            this.personalHighScore = databus.score
-          }
-        }
+        // if (this.personalHighScore) {
+        //   if (databus.score > this.personalHighScore) {
+        //     this.personalHighScore = databus.score
+        //   }
+        // }
 
         // 上传结果
         // 调用 uploadScore 云函数
-        wx.cloud.callFunction({
-          name: 'uploadScore',
-          // data 字段的值为传入云函数的第一个参数 event
-          data: {
-            score: databus.score
-          },
-          success: res => {
-            if (this.prefetchHighScoreFailed) {
-              this.prefetchHighScore()
-            }
-          },
-          fail: err => {
-            console.error('upload score failed', err)
-          }
-        })
+        // wx.cloud.callFunction({
+        //   name: 'uploadScore',
+        //   // data 字段的值为传入云函数的第一个参数 event
+        //   data: {
+        //     score: databus.score
+        //   },
+        //   success: res => {
+        //     if (this.prefetchHighScoreFailed) {
+        //       this.prefetchHighScore()
+        //     }
+        //   },
+        //   fail: err => {
+        //     console.error('upload score failed', err)
+        //   }
+        // })
 
         break
       }
@@ -188,32 +204,68 @@ export default class Main {
       let booloon = databus.booloons[i]
 
       if ( this.player.isCollideWith(booloon) ) {
-        databus.gameOver = true
+        // databus.gameOver = true
+        // 检测是否是正确答案
+        // console.log(this.problem.currentproblem.an);
+        // console.log(booloon.text);
+        if(this.problem.currentproblem.an == booloon.text){
+            console.log("正确答案");
+            booloon.visible = false;
+            databus.score += 3;
+            this.bg.top += 30;
+            for(let j = 0; j < databus.booloons.length;j++){
+                let boooloon2 = databus.booloons[j];
+                if(boooloon2.y < 250){
+                    boooloon2.visible = false;
+                }
+            }
+          if(this.currentproblem == 4){
+            this.currentproblem = 0;
+            this.problem.currentproblem = this.problem.problem[this.currentproblem];
+          }else {
+            this.currentproblem +=1;
+            this.problem.currentproblem = this.problem.problem[this.currentproblem];
+          }
+          if(databus.score >= 15){
+              databus.gameFinish = true;
+          }
+
+        }else {
+            console.log("错误答案");
+            booloon.visible = false;
+            databus.score -= 1;
+            this.bg.top -= 10;
+            if(databus.score <= -15){
+                databus.gameOver = true;
+            }
+        }
+
+
 
         // 获取历史高分
-        if (this.personalHighScore) {
-          if (databus.score > this.personalHighScore) {
-            this.personalHighScore = databus.score
-          }
-        }
+        // if (this.personalHighScore) {
+        //   if (databus.score > this.personalHighScore) {
+        //     this.personalHighScore = databus.score
+        //   }
+        // }
 
         // 上传结果
         // 调用 uploadScore 云函数
-        wx.cloud.callFunction({
-          name: 'uploadScore',
-          // data 字段的值为传入云函数的第一个参数 event
-          data: {
-            score: databus.score
-          },
-          success: res => {
-            if (this.prefetchHighScoreFailed) {
-              this.prefetchHighScore()
-            }
-          },
-          fail: err => {
-            console.error('upload score failed', err)
-          }
-        })
+        // wx.cloud.callFunction({
+        //   name: 'uploadScore',
+        //   // data 字段的值为传入云函数的第一个参数 event
+        //   data: {
+        //     score: databus.score
+        //   },
+        //   success: res => {
+        //     if (this.prefetchHighScoreFailed) {
+        //       this.prefetchHighScore()
+        //     }
+        //   },
+        //   fail: err => {
+        //     console.error('upload score failed', err)
+        //   }
+        // })
 
         break
       }
@@ -235,6 +287,22 @@ export default class Main {
         && y <= area.endY  )
       this.restart()
   }
+  // 游戏通关事件
+  EndTouchEventHandler(e) {
+    e.preventDefault()
+
+    let x = e.touches[0].clientX
+    let y = e.touches[0].clientY
+
+    let area = this.gameinfo.btnArea
+
+    if (   x >= area.startX
+        && x <= area.endX
+        && y >= area.startY
+        && y <= area.endY  )
+      this.restart()
+  }
+
   //开始菜单按钮+模式
   startTouchEventHandler(e){
       e.preventDefault();
@@ -307,21 +375,32 @@ export default class Main {
         databus.score,
         this.personalHighScore
       )
-
-      if ( !this.hasEventBind ) {
+      if ( this.hasEventBind == false ) {
         this.hasEventBind = true
         this.touchHandler = this.touchEventHandler.bind(this)
-        canvas.addEventListener('touchover', this.touchHandler)
+        canvas.addEventListener('touchstart', this.touchHandler)
       }
     }
+    // 游戏通关停止帧循环
+    if(databus.gameFinish){
+      this.gameinfo.renderGameFinish(ctx,databus.score,this.personalHighScore);
+      if(this.hasEndBind == false){
+        this.hasEndBind = true;
+        this.endHandler = this.EndTouchEventHandler.bind(this);
+        canvas.addEventListener("touchstart",this.endHandler);
+      }
+    }
+
   }
 
   // 游戏逻辑更新主函数
   update() {
     if ( databus.gameOver )
       return;
-
-    // this.bg.update()
+    if(databus.gameFinish){
+      return;
+    }
+    this.bg.update();
 
     // databus.bullets
     //        .concat(databus.enemys)
@@ -329,12 +408,23 @@ export default class Main {
     //           item.update()
     //         })
         databus.booloons.forEach((item)=>{
-          item.update(ctx);
+          let result = item.update(ctx);
+          if(result.status == true){
+              this.answer.answer[item.ran].lock = false;
+              if(result.text == this.problem.currentproblem.an){
+                  databus.score -= 2;
+                  this.bg.top -= 20;
+                  if(databus.score <= -15){
+                      databus.gameOver = true;
+                  }
+              }
+          }
         })
     // 敌机出现
     // this.enemyGenerate()
+    // 生成气球
     this.booloonGenerate();
-    this.collisionDetection()
+    this.collisionDetection();
     this.problem.update(ctx,"问题");
     // 子弹出现
     // if ( databus.frame % 20 === 0 ) {

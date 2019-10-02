@@ -18,18 +18,21 @@ function rnd(start, end){
 }
 
 export default class Booloon extends Animation {
-    constructor(text) {
+    constructor() {
         super(ENEMY_IMG_SRC, ENEMY_WIDTH, ENEMY_HEIGHT)
-        this.text = text;
+        this.text = "";
+        this.ran = 0;
+        this.iscollision = false;
         this.initExplosionAnimation()
     }
 
-    init(speed) {
+    init(speed,text,ran) {
         this.x = rnd(0, window.innerWidth - ENEMY_WIDTH);
         this.y = screenHeight - 120;
-
+        this.text = text;
+        this.ran = ran;
         this[__.speed] = speed
-
+        this.iscollision = false;
         this.visible = true
     }
 
@@ -52,17 +55,32 @@ export default class Booloon extends Animation {
         this.y -= this[__.speed]
 
         // 对象回收
-        if ( this.y < 140 )
-            databus.removeBooloon(this)
+        if ( this.y < 140 ) {
+            databus.removeBooloon(this);
+            return {
+                text:this.text,
+                ran:this.ran,
+                status:true
+            };
+        }
+        return {
+            text:this.text,
+            ran:this.ran,
+            status:false
+        }
     }
-    drawAnswer(ctx,text){
+    drawAnswer(ctx){
+        if(!this.visible){
+            return;
+        }
         ctx.fillStyle = "#ffffff"
         ctx.font    = "14px Arial"
-
         ctx.fillText(
             this.text?this.text:"答案",
             this.x + 20,
             this.y + 20
         )
     }
+
+
 }

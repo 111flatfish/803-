@@ -22,16 +22,22 @@ export default class BackGround extends Sprite {
     this.river.src = "images/river.jpg";
     this.rubbish.src = "images/rubbish.png";
     this.bin.src = "images/bin.jpg";
-    this.top = 0
+    this.top = 190;
     this.render(ctx)
   }
 
-  // update() {
-  //   this.top += 2
-
-  //   if ( this.top >= screenHeight )
-  //     this.top = 0
-  // }
+  update(value) {
+    switch (value) {
+      case 0:
+        break;
+      case 1:
+        top += 20;
+        break;
+      case -1:
+        top -= 20;
+        break;
+    }
+  }
 
   /**
    * 背景图重绘函数
@@ -47,13 +53,7 @@ export default class BackGround extends Sprite {
         this.width,
         this.height
       );
-      ctx.drawImage(
-        this.river,
-        50,
-        0,
-        50,
-        50
-      );
+
     for(let i = 0; i < 11; i++){
       ctx.drawImage(
         this.stab,
@@ -64,14 +64,16 @@ export default class BackGround extends Sprite {
 
       );
     }
+    // 缓冲区
     ctx.fillStyle = '#FFF';
     ctx.setLineDash([10,10]);
     ctx.beginPath();
     ctx.moveTo(0,140);
     ctx.lineTo(450,140);
-    ctx.moveTo(0,190);
-    ctx.lineTo(450,190);
+    ctx.moveTo(0,250);
+    ctx.lineTo(450,250);
     ctx.stroke();
+
     ctx.setLineDash([]);
     ctx.fillStyle="#FF0000";
     ctx.beginPath();
@@ -83,20 +85,31 @@ export default class BackGround extends Sprite {
     }
     ctx.closePath();
     ctx.fill();
+
+    ctx.drawImage(
+        this.river,
+        40,
+        0,
+        50,
+        50
+    );
+
     ctx.drawImage(
       this.rubbish,
-      180,
+      this.top,
       0,
       50,
       50
     );
+
     ctx.drawImage(
       this.bin,
-      320,
+      340,
       0,
       50,
       50
     );
+
     ctx.fillStyle = "#ccc"
     ctx.fillRect(0,screenHeight-50,512,50)
     ctx.fillStyle = "#ef4238";
