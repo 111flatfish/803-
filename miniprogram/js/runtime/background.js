@@ -23,6 +23,7 @@ export default class BackGround extends Sprite {
     this.rubbish.src = "images/rubbish.png";
     this.bin.src = "images/bin.jpg";
     this.top = 190;
+    this.bgmode = 0;
     this.render(ctx)
   }
 
@@ -143,5 +144,66 @@ export default class BackGround extends Sprite {
     //   screenWidth,
     //   screenHeight
     // )
+  }
+  changeBgRender(ctx,mode){
+    let gar1 = new Image();
+    let gar2 = new Image();
+    let gar3 = new Image();
+    let goo1 = new Image();
+    let goo2 = new Image();
+    let goo3 = new Image();
+    let goo4 = new Image();
+    let goo5 = new Image();
+    gar1.src = "images/rubbish1.png"
+    gar2.src = "images/rubbish2.png"
+    gar3.src = "images/rubbish3.png"
+    goo1.src = "images/butter1.png"
+    goo2.src = "images/butter2.png"
+    goo3.src = "images/flower1.png"
+    goo4.src = "images/flower2.png"
+    goo5.src = "images/flower3.png"
+    switch (mode) {
+      case 0:
+        break;
+      case 1:
+        ctx.drawImage(gar1,135,200,30,30);
+        ctx.drawImage(gar2,20,250,30,30);
+        ctx.drawImage(gar3,220,230,30,30);
+        ctx.beginPath();
+        ctx.fillStyle = 'rgba(155, 55, 33, 0.1)';
+        ctx.fillRect(0,0,450,750);
+        break;
+      case 2:
+        ctx.drawImage(gar1,135,200,30,30);
+        ctx.drawImage(gar2,20,250,30,30);
+        ctx.drawImage(gar3,220,230,30,30);
+        ctx.drawImage(gar1,300,250,30,30);
+        ctx.drawImage(gar2,250,400,30,30);
+        ctx.drawImage(gar3,350,300,30,30);
+        ctx.beginPath();
+        ctx.fillStyle = 'rgba(155, 55, 33, 0.3)';
+        ctx.fillRect(0,0,450,750);
+        break;
+      case 3:
+        ctx.drawImage(gar1,135,200,30,30);
+        ctx.drawImage(gar2,20,250,30,30);
+        ctx.drawImage(gar3,220,230,30,30);
+        ctx.drawImage(gar1,300,250,30,30);
+        ctx.drawImage(gar2,250,400,30,30);
+        ctx.drawImage(gar3,350,300,30,30);
+        ctx.drawImage(gar1,50,350,30,30);
+        ctx.drawImage(gar2,100,380,30,30);
+        ctx.drawImage(gar3,20,420,30,30);
+        ctx.beginPath();
+        ctx.fillStyle = 'rgba(155, 55, 33, 0.5)';
+        ctx.fillRect(0,0,450,750);
+        break;
+      case 4:
+        break;
+      case 5:
+        break;
+      case 6:
+        break;
+    }
   }
 }

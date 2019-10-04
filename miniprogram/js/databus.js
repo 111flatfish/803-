@@ -53,9 +53,10 @@ export default class DataBus {
     this.pool.recover('bullet', bullet)
   }
 
-  removeBooloon(booloon){
-    let temp = this.booloons.shift();
+  removeBooloon(booloon,index){
+    let temp = this.booloons.splice(index,1);
     temp.visible = false;
     this.pool.recover("booloon",booloon);
   }
+
 }

@@ -128,23 +128,22 @@ export default class Main {
       return problem;
   }
   booloonGenerate(){
-    if(databus.frame % 50 === 0){
-      let ran = Math.floor(Math.random()*(20));
-      let text = "答案";
-      while(this.answer.answer[ran].lock != false){
-        ran = Math.floor(Math.random()*(20));
-      }
-      text = this.answer.answer[ran].text;
-      this.answer.answer[ran].lock = true;
-      // console.log(this.answer.answer[ran]);
-      let booloon = databus.pool.getItemByClass("booloon",Booloon);
-      if(this.gameMode == true){
-        booloon.init(2,text,ran);
-      }else {
-        booloon.init(5, text, ran);
-      }
-      databus.booloons.push(booloon);
-    }
+            let ran = Math.floor(Math.random()*(20));
+            let ran2 = Math.floor(Math.random()*(2)+1);
+            let text = "答案";
+            while(this.answer.answer[ran].lock != false){
+              ran = Math.floor(Math.random()*(20));
+            }
+            text = this.answer.answer[ran].text;
+            this.answer.answer[ran].lock = true;
+            // console.log(this.answer.answer[ran]);
+            let booloon = databus.pool.getItemByClass("booloon",Booloon);
+            if(this.gameMode == true){
+              booloon.init(ran2,text,ran);
+            }else {
+              booloon.init(ran2+2, text, ran);
+            }
+            return booloon;
   }
   // 全局碰撞检测
   collisionDetection() {
@@ -210,13 +209,23 @@ export default class Main {
         // console.log(booloon.text);
         if(this.problem.currentproblem.an == booloon.text){
             console.log("正确答案");
-            booloon.visible = false;
-            databus.score += 3;
-            this.bg.top += 30;
+          if (booloon.isPlaying == false) {
+            booloon.playAnimation();
+            // that.music.playExplosion()
+          }
+          databus.removeBooloon(booloon,i);
+          this.answer.answer[booloon.ran].lock = false;
+          databus.score += 3;
+          this.bg.top += 30;
             for(let j = 0; j < databus.booloons.length;j++){
-                let boooloon2 = databus.booloons[j];
-                if(boooloon2.y < 250){
-                    boooloon2.visible = false;
+                let booloon2 = databus.booloons[j];
+                if(booloon2.y < 250){
+                  if (booloon2.isPlaying == false) {
+                    booloon2.playAnimation();
+                    // that.music.playExplosion()
+                  }
+                    databus.removeBooloon(booloon2,j);
+                    this.answer.answer[booloon2.ran].lock = false;
                 }
             }
           if(this.currentproblem == 4){
@@ -232,9 +241,21 @@ export default class Main {
 
         }else {
             console.log("错误答案");
-            booloon.visible = false;
+          if (booloon.isPlaying == false) {
+            booloon.playAnimation();
+            // that.music.playExplosion()
+          }
+            databus.removeBooloon(booloon,i);
+            this.answer.answer[booloon.ran].lock = false;
             databus.score -= 1;
             this.bg.top -= 10;
+            if(databus.score <= -2&&databus.score>-8){
+              this.bg.bgmode = 1;
+            }else if(databus.score <= -8&&databus.score >-12){
+              this.bg.bgmode = 2;
+            }else if(databus.score <= -12){
+              this.bg.bgmode = 3;
+            }
             if(databus.score <= -15){
                 databus.gameOver = true;
             }
@@ -348,8 +369,8 @@ export default class Main {
   render() {
     ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-    this.bg.render(ctx)
-
+    this.bg.render(ctx);
+    this.bg.changeBgRender(ctx,this.bg.bgmode);
     databus.booloons
           .forEach((item) => {
               item.drawToCanvas(ctx);
@@ -407,23 +428,48 @@ export default class Main {
     //        .forEach((item) => {
     //           item.update()
     //         })
-        databus.booloons.forEach((item)=>{
-          let result = item.update(ctx);
-          if(result.status == true){
-              this.answer.answer[item.ran].lock = false;
-              if(result.text == this.problem.currentproblem.an){
-                  databus.score -= 2;
-                  this.bg.top -= 20;
-                  if(databus.score <= -15){
-                      databus.gameOver = true;
-                  }
-              }
-          }
-        })
+
     // 敌机出现
     // this.enemyGenerate()
     // 生成气球
-    this.booloonGenerate();
+    if(databus.frame % 60 === 0){
+        let booloon = this.booloonGenerate();
+        databus.booloons.push(booloon);
+        databus.animations.push(booloon);
+    }
+    databus.booloons.forEach((item,index)=>{
+      let result = item.update(ctx);
+      if(item.y < 140){
+        if (item.isPlaying == false) {
+          item.playAnimation();
+          // that.music.playExplosion()
+        }else {
+          databus.removeBooloon(item,index);
+          this.answer.answer[item.ran].lock = false;
+          if(item.text == this.problem.currentproblem.an){
+            databus.score -= 2;
+            this.bg.top -= 20;
+            if(databus.score <= -15){
+              databus.gameOver = true;
+            }
+          }
+        }
+      }
+
+
+
+
+      // if(result.status == true){
+      //   this.answer.answer[item.ran].lock = false;
+      //   if(result.text == this.problem.currentproblem.an){
+      //     databus.score -= 2;
+      //     this.bg.top -= 20;
+      //     if(databus.score <= -15){
+      //       databus.gameOver = true;
+      //     }
+      //   }
+      // }
+    })
     this.collisionDetection();
     this.problem.update(ctx,"问题");
     // 子弹出现

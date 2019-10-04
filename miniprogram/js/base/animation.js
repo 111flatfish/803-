@@ -21,7 +21,7 @@ export default class Animation extends Sprite {
     this.loop = false
 
     // 每一帧的时间间隔
-    this.interval = 1000 / 60
+    this.interval = 1000 / 15
 
     // 帧定时器
     this[__.timer] = null
@@ -35,11 +35,12 @@ export default class Animation extends Sprite {
     // 帧图片集合
     this.imgList = []
 
+    this.flag = 0;
     /**
      * 推入到全局动画池里面
      * 便于全局绘图的时候遍历和绘制当前动画帧
      */
-    databus.animations.push(this)
+    // databus.animations.push(this)
   }
 
   /**
@@ -59,6 +60,7 @@ export default class Animation extends Sprite {
 
   // 将播放中的帧绘制到canvas上
   aniRender(ctx) {
+    if(this.isPlaying == true)
     ctx.drawImage(
       this.imgList[this.index],
       this.x,
@@ -75,7 +77,7 @@ export default class Animation extends Sprite {
 
     this.isPlaying = true
     this.loop      = loop
-
+    this.flag = 1;
     this.index     = index
 
     if ( this.interval > 0 && this.count ) {
@@ -89,7 +91,7 @@ export default class Animation extends Sprite {
   // 停止帧动画播放
   stop() {
     this.isPlaying = false
-
+    this.flag = 2;
     if ( this[__.timer] )
       clearInterval(this[__.timer])
   }
@@ -104,8 +106,10 @@ export default class Animation extends Sprite {
       }
 
       else {
-        this.index--
-        this.stop()
+        this.index--;
+        this.isPlaying = false;
+        this.stop();
+
       }
     }
   }

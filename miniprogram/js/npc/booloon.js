@@ -33,15 +33,16 @@ export default class Booloon extends Animation {
         this.ran = ran;
         this[__.speed] = speed
         this.iscollision = false;
-        this.visible = true
+        this.visible = true;
+        this.isPlaying = false;
     }
 
     // 预定义爆炸的帧动画
     initExplosionAnimation() {
         let frames = []
 
-        const EXPLO_IMG_PREFIX  = 'images/explosion'
-        const EXPLO_FRAME_COUNT = 19
+        const EXPLO_IMG_PREFIX  = 'images/explosionbooloon'
+        const EXPLO_FRAME_COUNT = 3
 
         for ( let i = 0;i < EXPLO_FRAME_COUNT;i++ ) {
             frames.push(EXPLO_IMG_PREFIX + (i + 1) + '.png')
@@ -51,23 +52,23 @@ export default class Booloon extends Animation {
     }
 
     // 每一帧更新位置
-    update(ctx) {
+    update(ctx,das) {
         this.y -= this[__.speed]
 
         // 对象回收
-        if ( this.y < 140 ) {
-            databus.removeBooloon(this);
-            return {
-                text:this.text,
-                ran:this.ran,
-                status:true
-            };
-        }
-        return {
-            text:this.text,
-            ran:this.ran,
-            status:false
-        }
+        // if ( this.y < 140 ) {
+        //     databus.removeBooloon(this);
+        //     return {
+        //         text:this.text,
+        //         ran:this.ran,
+        //         status:true
+        //     };
+        // }
+        // return {
+        //     text:this.text,
+        //     ran:this.ran,
+        //     status:false
+        // }
     }
     drawAnswer(ctx){
         if(!this.visible){
