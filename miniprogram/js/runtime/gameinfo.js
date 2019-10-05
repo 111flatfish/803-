@@ -27,7 +27,7 @@ export default class GameInfo {
     ctx.font    = "20px Arial"
 
     ctx.fillText(
-      '游戏结束',
+      '你真垃圾',
       screenWidth / 2 - 40,
       screenHeight / 2 - 100 + 50
     )

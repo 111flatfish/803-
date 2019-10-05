@@ -24,6 +24,12 @@ export default class BackGround extends Sprite {
     this.bin.src = "images/bin.jpg";
     this.top = 190;
     this.bgmode = 0;
+    this.isPlaying = false;
+    this.index = 0;
+    this.count = 10;
+    this.interval = 1000/300;
+    this.loop = false;
+    this.timer = null;
     this.render(ctx)
   }
 
@@ -146,6 +152,7 @@ export default class BackGround extends Sprite {
     // )
   }
   changeBgRender(ctx,mode){
+    let Interval ;
     let gar1 = new Image();
     let gar2 = new Image();
     let gar3 = new Image();
@@ -169,9 +176,6 @@ export default class BackGround extends Sprite {
         ctx.drawImage(gar1,135,200,30,30);
         ctx.drawImage(gar2,20,250,30,30);
         ctx.drawImage(gar3,220,230,30,30);
-        ctx.beginPath();
-        ctx.fillStyle = 'rgba(155, 55, 33, 0.1)';
-        ctx.fillRect(0,0,450,750);
         break;
       case 2:
         ctx.drawImage(gar1,135,200,30,30);
@@ -181,8 +185,8 @@ export default class BackGround extends Sprite {
         ctx.drawImage(gar2,250,400,30,30);
         ctx.drawImage(gar3,350,300,30,30);
         ctx.beginPath();
-        ctx.fillStyle = 'rgba(155, 55, 33, 0.3)';
-        ctx.fillRect(0,0,450,750);
+        ctx.fillStyle = `rgba(155, 55, 33,0.3)`;
+        ctx.fillRect(0, 0, 450, 750);
         break;
       case 3:
         ctx.drawImage(gar1,135,200,30,30);
@@ -199,11 +203,43 @@ export default class BackGround extends Sprite {
         ctx.fillRect(0,0,450,750);
         break;
       case 4:
+        ctx.drawImage(goo1,135,200,30,30);
+        ctx.drawImage(goo2,20,250,30,30);
+        ctx.drawImage(goo3,220,230,30,30);
         break;
       case 5:
+        ctx.drawImage(goo1,135,200,30,30);
+        ctx.drawImage(goo2,20,250,30,30);
+        ctx.drawImage(goo3,220,230,30,30);
+        ctx.drawImage(goo1,300,250,30,30);
+        ctx.drawImage(goo2,250,400,30,30);
+        ctx.drawImage(goo3,350,300,30,30);
         break;
       case 6:
+        ctx.drawImage(goo1,135,200,30,30);
+        ctx.drawImage(goo2,20,250,30,30);
+        ctx.drawImage(goo3,220,230,30,30);
+        ctx.drawImage(goo1,300,250,30,30);
+        ctx.drawImage(goo2,250,400,30,30);
+        ctx.drawImage(goo3,350,300,30,30);
+        ctx.drawImage(goo1,50,350,30,30);
+        ctx.drawImage(goo2,100,380,30,30);
+        ctx.drawImage(goo3,20,420,30,30);
         break;
+    }
+  }
+  frameloop(){
+    if(this.loop == false&&this.index <= this.count) {
+      this.index++;
+    }
+    if(this.index > this.count){
+      this.loop = true;
+    }
+    if(this.loop == true){
+      this.index --;
+      if(this.index <= 0){
+        this.loop = false;
+      }
     }
   }
 }

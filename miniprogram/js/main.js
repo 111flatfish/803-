@@ -421,6 +421,13 @@ export default class Main {
     if(databus.gameFinish){
       return;
     }
+    if(databus.score >2&& databus.score <= 8){
+      this.bg.bgmode = 4;
+    }else if(databus.score >8&& databus.score <= 13){
+      this.bg.bgmode = 5;
+    }else if(databus.score >13){
+      this.bg.bgmode = 6;
+    }
     this.bg.update();
 
     // databus.bullets
